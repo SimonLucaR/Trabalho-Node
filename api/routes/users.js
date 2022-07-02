@@ -1,7 +1,7 @@
 const express = require('express');
 const { default: mongoose } = require('mongoose');
+const passport = require('passport');
 const router = express.Router();
-
 const UsersModel = mongoose.model('Users');
 
 router.get('/', async (req, res, next) => {
@@ -35,10 +35,10 @@ router.post('/signup', async (req, res, next) => {
         let user = new UsersModel({
             name: req.body.name,
             username: req.body.username,
-            password: Buffer.from(req.body.password).toString('base64'),
             access: req.body.access
         });
-        console.log();
+        user.setPassword(req.body.password);
+
         await user.save();
 
         res.status(200).json({
@@ -86,29 +86,19 @@ router.get('/:userId', async (req, res, next) => {
     }
 });
 
-router.post('/login', async (req, res, next) => {
+router.post('/login', function (req, res, next) {
     try {
-        let user = new UsersModel ({
-            username: req.body.username,
-            password: req.body.password
-        })
-        const userFind = await UsersModel.findOne({ username : user.username })
-        if (userFind) {
-            const passwordBd = Buffer.from(userFind.password,'base64').toString('ascii');
-            if (passwordBd == user.password) {
-                res.status(200).json({
-                    message: 'Success'
-                })
-            }else{
-                res.status(401).json({
-                    message: "Wrong Password"
-                })
-            }
-        } else {
-            res.status(404).json({
-                message: "User not found"
-            })
+        if(!req.body.username || !req.body.password){
+            return res.status(400).json({message: 'Por favor, preencha o usuario e a senha'});
         }
+        passport.authenticate('local', function (err, user, info){
+            if(err){return next(err)};
+            if(user){
+                return res.json({token: user.generateJWT()});
+            }else{
+                return res.status(401).json(info);
+            }
+        })(req, res, next);
     } catch (err) {
         console.log(err);
         res.status(500).json(err)
