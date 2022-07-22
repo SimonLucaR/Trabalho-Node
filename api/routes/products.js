@@ -31,7 +31,7 @@ const ProductsModel = mongoose.model('Products');
 
 router.get('/', async (req, res, next) => {
     try {
-        const products = await ProductsModel.find().select("name price image _id");
+        const products = await ProductsModel.find().select("name price image createdAt updatedAt _id");
         res.status(200).json({
             count: products.length,
             products: products.map(product => {
@@ -39,6 +39,8 @@ router.get('/', async (req, res, next) => {
                     name: product.name,
                     price: product.price,
                     image: product.image,
+                    createdAt: product.createdAt,
+                    updatedAt: product.updatedAt,
                     _id: product._id,
                     request: {
                         type: "GET",
@@ -53,13 +55,13 @@ router.get('/', async (req, res, next) => {
     }
 });
 
-router.post('/', upload.single('productImage'), async (req, res, next) => {
+router.post('/', /*upload.single('productImage'),*/ async (req, res, next) => {
     console.log(req.file);
     try {
         let product = new ProductsModel({
             name: req.body.name,
             price: req.body.price,
-            image: req.file.path
+            //image: req.file.path
         });
 
         await product.save();
@@ -69,7 +71,7 @@ router.post('/', upload.single('productImage'), async (req, res, next) => {
             createdProduct: {
                 name: product.name,
                 price: product.price,
-                image: product.image,
+                //image: product.image,
                 _id: product._id,
                 request: {
                     type: "GET",

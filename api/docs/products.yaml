@@ -1,0 +1,22 @@
+paths:
+  /products:
+    get:
+      tags:
+        - Products
+      summary: Buscar produtos
+      description: Retorna uma lista contendo varios produtos
+      responses:
+        '200':
+          description: Uma lista com os produtos
+          schema:
+            $ref: '#/definitions/Products'
+definitions:
+  Products:
+    type: Object
+    properties:
+      name:
+        type: string
+      price:
+        type: number
+      image:
+        type: string

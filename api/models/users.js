@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const crypto = require('bcrypt');
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 
 
@@ -26,9 +26,9 @@ userSchema.methods.validPassword = function(password){
     return this.hash === hash;
 };
 
-userSchema.methods.gererateJWT = function(){
+userSchema.methods.generateJWT = function(){
   let exp   = new Date();
-  ext.setDate(new Date().getDate() + 60);
+  exp.setDate(new Date().getDate() + 60);
 
   return jwt.sign({
     _id: this._id,

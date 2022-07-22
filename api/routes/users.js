@@ -3,34 +3,13 @@ const { default: mongoose } = require('mongoose');
 const passport = require('passport');
 const router = express.Router();
 const UsersModel = mongoose.model('Users');
+const controllerUser = require('../controllers/user-controller');
 
-router.get('/', async (req, res, next) => {
-    try {
-        const users = await UsersModel.find().select("name username");
-        res.status(200).json({
-            count: users.length,
-            users: users.map(user => {
-                return {
-                    name: user.name,
-                    username: user.username,
-                    access: user.access,
-                    _id: user._id,
-                    request: {
-                        type: "GET",
-                        url: "https://localhost:3000/users/" + user._id
-                    }
-                }
-            })
-        })
-    } catch (err) {
-        console.log(err);
-        res.status(500).json(err)
-    }
-});
+router.get('/', controllerUser.verifyJWT, controllerUser.get_all_users);
 
+router.get('/info', controlerUser.verifyJWT, controllerUser.get_info_user);
 
 router.post('/signup', async (req, res, next) => {
-    console.log(req.file);
     try {
         let user = new UsersModel({
             name: req.body.name,

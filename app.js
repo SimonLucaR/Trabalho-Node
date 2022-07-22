@@ -3,6 +3,7 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const passport = require('passport');
+const swaggerUi = require('swagger-ui-express');
 
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
@@ -14,7 +15,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 
 require('./api/models/products');
 require('./api/models/orders');
-require('./api/models/users')
+require('./api/models/users');
 
 const app = express();
 
@@ -33,9 +34,11 @@ app.use(bodyParser.json());
 require('./api/config/passport')(passport);
 app.use(passport.initialize());
 
+//autoriza o front a acessar o back
 const cors = (req, res, next) => {
     const whiteList = [
-        'http://localhost:8080'
+        'http://localhost:8080',
+        'http://localhost:4200'
     ]
 
     const origin = req.header.origin
@@ -55,6 +58,10 @@ app.use('/products', productsRoutes);
 app.use('/orders', ordersRoutes);
 app.use('/users', usersRoutes);
 app.use('/uploads', express.static('uploads'));
+
+let swaggerSpec = require('./api/config/swagger');
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/api', (req, res, next) => {
     res.status(200).json({

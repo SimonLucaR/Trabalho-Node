@@ -1,8 +1,8 @@
 const LocalStrategy = require('passport-local').Strategy;
 const mongoose = require('mongoose');
-const User = mongoose.model('User');
+const User = mongoose.model('Users');
 
-modulo.exports = function(passport){
+module.exports = function(passport){
     passport.serializeUser(function(user,done){
         done(null, user._id);
     })
@@ -13,7 +13,7 @@ modulo.exports = function(passport){
         })
     })
 
-    passport.use(new LocalStrategy)(
+    passport.use(new LocalStrategy(
         function (username, password, done){
             User.findOne({username: username}, function (err, user){
                 if(err){
@@ -28,5 +28,5 @@ modulo.exports = function(passport){
                 return done(null, user);
             })
         }
-    )
+    ))
 };
